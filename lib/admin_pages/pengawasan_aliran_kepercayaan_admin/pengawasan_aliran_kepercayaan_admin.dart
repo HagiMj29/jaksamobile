@@ -1,46 +1,37 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mobilejaksasumbar/model/model_posko.dart';
-import 'package:mobilejaksasumbar/user_pages/posko_pilkada/detail_posko_pilkada.dart';
-import 'package:mobilejaksasumbar/user_pages/posko_pilkada/edit_posko_pilkada.dart';
-import '../../model/api_services.dart';
 import 'package:http/http.dart' as http;
+import '../../model/api_services.dart';
+import '../../model/model_aliran.dart';
+import '../../user_pages/pengawasan_aliran_dan_kepercayaan/detail_pengawasan_aliran_kepercayaan.dart';
 
-class PoskoPilkadaPage extends StatefulWidget {
-  final int userId;
-  final String noHp;
-  final String nikKtp;
-  final ApiServices apiService;
-
-  const PoskoPilkadaPage({Key? key, required this.userId, required this.noHp, required this.nikKtp, required this.apiService}) : super(key: key);
+class PengawasanAliranKepercayaanAdmin extends StatefulWidget {
+  const PengawasanAliranKepercayaanAdmin({super.key});
 
   @override
-  State<PoskoPilkadaPage> createState() => _PoskoPilkadaPageState();
+  State<PengawasanAliranKepercayaanAdmin> createState() => _PengawasanAliranKepercayaanAdminState();
 }
 
-class _PoskoPilkadaPageState extends State<PoskoPilkadaPage> {
-
-  String? noHp;
-  String? nikKtp;
-  List<Result> _poskoList = [];
+class _PengawasanAliranKepercayaanAdminState extends State<PengawasanAliranKepercayaanAdmin> {
+  List<Result> _aliranList = [];
 
   @override
   void initState() {
     super.initState();
     setState(() {
-      _fetchPosko();
+      _fetchaliran();
     });
   }
 
-  void _fetchPosko() async {
+  void _fetchaliran() async {
     try {
       http.Response res =
       await http.get(Uri.parse('${AppConfig.baseUrl}/aliran'));
       if (res.statusCode == 200) {
         setState(() {
-          _poskoList =
-              modelPoskoFromJson(res.body).result;
-          _poskoList = _poskoList.where((pengaduan) => pengaduan.userId == widget.userId).toList();
+          _aliranList =
+              modelAliranFromJson(res.body).result;
+          _aliranList = _aliranList;
         });
       } else {
         throw Exception('Failed to load Data');
@@ -75,60 +66,14 @@ class _PoskoPilkadaPageState extends State<PoskoPilkadaPage> {
     }
   }
 
-  Future<void> deletePosko(int id) async {
-    try {
-      // Hapus item secara lokal terlebih dahulu
-      setState(() {
-        _poskoList.removeWhere((pengaduan) => pengaduan.id == id);
-      });
-
-      final response = await http.delete(Uri.parse('${AppConfig.baseUrl}/aliran/$id'));
-
-      if (response.statusCode == 200) {
-        print('Pengaduan Posko deleted successfully');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Data Berhasil dihapus'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      } else {
-        // Jika gagal, tambahkan item kembali ke daftar
-        setState(() {
-          _fetchPosko();
-        });
-        print('Failed to delete Pengaduan Posko: ${response.body}');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Data gagal dihapus'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } catch (e) {
-      print('Error deleting Pengaduan Posko: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Terjadi kesalahan saat menghapus data'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Posko Pilkada",
+          "Pengawasam Aliran dan Kepercayaan",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        actions: [
-          IconButton(onPressed: (){
-            // _gotoAddAliran();
-          }, icon: Icon(Icons.add_box))
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
@@ -140,15 +85,15 @@ class _PoskoPilkadaPageState extends State<PoskoPilkadaPage> {
             Expanded(
                 child: Scrollbar(
                   child: ListView.builder(
-                      itemCount: _poskoList.length,
+                      itemCount: _aliranList.length,
                       itemBuilder: (context, index) {
-                        Result result = _poskoList[index];
+                        Result result = _aliranList[index];
                         return GestureDetector(
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => DetailPoskoPilkada(
+                                builder: (context) => DetailPengawasanAliranKepercayaan(
                                   data: result,
                                 ),
                               ),
@@ -163,14 +108,14 @@ class _PoskoPilkadaPageState extends State<PoskoPilkadaPage> {
                                   title: Row(
                                     children: [
                                       Text(
-                                        "Pengaduan ke",
+                                        "Nama : ",
                                         style: TextStyle(fontSize: 20),
                                       ),
                                       SizedBox(
                                         width: 5,
                                       ),
                                       Text(
-                                        result.id.toString(),
+                                        result.userName.toString(),
                                         style: TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold),
@@ -211,24 +156,24 @@ class _PoskoPilkadaPageState extends State<PoskoPilkadaPage> {
                                     children: [
                                       InkWell(
                                         onTap: () {
-                                          if (_getFormattedStatus(result.status) == 'Diproses') {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => EditPoskoPilkada(
-                                                  pengaduanposko:
-                                                  result, userId: widget.userId,),
-                                              ),
-                                            );
-                                          } else if (_getFormattedStatus(result.status) == 'Disetujui' ||
-                                              _getFormattedStatus(result.status) == 'Ditolak') {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                content: Text('Anda sudah tidak bisa mengedit data ini'),
-                                                backgroundColor: Colors.red,
-                                              ),
-                                            );
-                                          }
+                                          // if (_getFormattedStatus(result.status) == 'Diproses') {
+                                          //   Navigator.push(
+                                          //     context,
+                                          //     MaterialPageRoute(
+                                          //       builder: (context) => EditPengawasanAliranKepercayaan(
+                                          //         pengaduanpegawai:
+                                          //         result, userId: widget.userId,),
+                                          //     ),
+                                          //   );
+                                          // } else if (_getFormattedStatus(result.status) == 'Disetujui' ||
+                                          //     _getFormattedStatus(result.status) == 'Ditolak') {
+                                          //   ScaffoldMessenger.of(context).showSnackBar(
+                                          //     SnackBar(
+                                          //       content: Text('Anda sudah tidak bisa mengedit data ini'),
+                                          //       backgroundColor: Colors.red,
+                                          //     ),
+                                          //   );
+                                          // }
                                         },
                                         child: Container(
                                           decoration: BoxDecoration(
@@ -244,17 +189,17 @@ class _PoskoPilkadaPageState extends State<PoskoPilkadaPage> {
                                       SizedBox(width: 10,),
                                       InkWell(
                                         onTap: () {
-                                          if (_getFormattedStatus(result.status) == 'Diproses') {
-                                            deletePosko(result.id);
-                                          } else if (_getFormattedStatus(result.status) == 'Disetujui' ||
-                                              _getFormattedStatus(result.status) == 'Ditolak') {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                content: Text('Anda sudah tidak bisa menghapus data ini'),
-                                                backgroundColor: Colors.red,
-                                              ),
-                                            );
-                                          }
+                                          // if (_getFormattedStatus(result.status) == 'Diproses') {
+                                          //   deleteAliran(result.id);
+                                          // } else if (_getFormattedStatus(result.status) == 'Disetujui' ||
+                                          //     _getFormattedStatus(result.status) == 'Ditolak') {
+                                          //   ScaffoldMessenger.of(context).showSnackBar(
+                                          //     SnackBar(
+                                          //       content: Text('Anda sudah tidak bisa menghapus data ini'),
+                                          //       backgroundColor: Colors.red,
+                                          //     ),
+                                          //   );
+                                          // }
                                         },
                                         child: Container(
                                           decoration: BoxDecoration(

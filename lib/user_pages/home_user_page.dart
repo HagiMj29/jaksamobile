@@ -7,6 +7,7 @@ import 'package:mobilejaksasumbar/user_pages/pengaduan_pegawai/pengaduan_pegawai
 import 'package:mobilejaksasumbar/user_pages/pengaduan_tindak_pidana_korupsi/pengaduan_tindak_pidana_korupsi_page.dart';
 import 'package:mobilejaksasumbar/user_pages/pengawasan_aliran_dan_kepercayaan/pengawasan_aliran_agama_kepercayaan_page.dart';
 import 'package:mobilejaksasumbar/user_pages/penyuluhan_hukum_page/penyuluhan_hukum_page.dart';
+import 'package:mobilejaksasumbar/user_pages/posko_pilkada/posko_pilkada_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shrink_sidemenu/shrink_sidemenu.dart';
 import '../model/api_services.dart';
@@ -134,6 +135,22 @@ class _HomeUserPageState extends State<HomeUserPage> {
       context,
       MaterialPageRoute(
         builder: (context) => PengawasanAliranDanKepercayaan(
+          userId: widget.userId,
+          noHp: widget.noHp,
+          nikKtp: widget.nikKtp,
+          apiService: ApiServices(baseUrl: AppConfig.baseUrl),
+        ),
+      ),
+    );
+
+    if (result != null && result['success'] == true) {}
+  }
+
+  void _goToPosko() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PoskoPilkadaPage(
           userId: widget.userId,
           noHp: widget.noHp,
           nikKtp: widget.nikKtp,
@@ -394,31 +411,36 @@ class _HomeUserPageState extends State<HomeUserPage> {
                   ),
                 ),
                 SizedBox(height: 20),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 5,
-                        blurRadius: 7,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.house_siding_sharp,
-                        color: Colors.orange,
-                        size: 50,
-                      ),
-                      Text(
-                        "Posko Pilkada",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                GestureDetector(
+                  onTap: (){
+                    _goToPosko();
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 5,
+                          blurRadius: 7,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.house_siding_sharp,
+                          color: Colors.orange,
+                          size: 50,
+                        ),
+                        Text(
+                          "Posko Pilkada",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

@@ -6,8 +6,8 @@ import 'dart:io';
 import 'package:http_parser/http_parser.dart';
 
 class AppConfig {
-  static const String baseUrl = "http://192.168.18.72:8000/api";
-  static const String baseStorage = 'http://192.168.18.72:8000/storage/';
+  static const String baseUrl = "http://192.168.1.6:8000/api";
+  static const String baseStorage = 'http://192.168.1.6:8000/storage/';
 }
 
 class ApiServices {
@@ -458,6 +458,210 @@ class ApiServices {
       throw Exception('Failed to upload pengaduan: $responseData');
     }
   }
+
+  Future<Map<String, dynamic>> uploadPosko({
+    required String userId,
+    required String noHp,
+    required String nikKtp,
+    required String laporanPengaduan,
+    required Uint8List pdfKtp,
+    required Uint8List pdfPengaduan,
+  }) async {
+    final Uri uri = Uri.parse('$baseUrl/posko');
+    final request = http.MultipartRequest('POST', uri);
+
+    request.fields.addAll({
+      'user_id': userId,
+      'no_hp': noHp,
+      'nik_ktp': nikKtp,
+      'laporan_pengaduan': laporanPengaduan,
+    });
+
+    request.files.add(http.MultipartFile.fromBytes(
+      'input_pdf_ktp',
+      pdfKtp,
+      filename: 'ktp.pdf',
+      contentType: MediaType('application', 'pdf'),
+    ));
+
+    request.files.add(http.MultipartFile.fromBytes(
+      'input_pdf_pengaduan',
+      pdfPengaduan,
+      filename: 'pengaduan.pdf',
+      contentType: MediaType('application', 'pdf'),
+    ));
+
+    final response = await request.send();
+    final String responseData = await utf8.decodeStream(response.stream);
+
+    if (response.statusCode == 201) {
+      return json.decode(responseData.toString());
+    } else {
+      throw Exception('Failed to upload pengaduan: $responseData');
+    }
+  }
+
+  Future<Map<String, dynamic>> updatePosko(int id,{
+    required String userId,
+    required String noHp,
+    required String nikKtp,
+    required String laporanPengaduan,
+    Uint8List? pdfKtp,
+    Uint8List? pdfPengaduan,
+  }) async {
+    final Uri uri = Uri.parse('$baseUrl/posko/$id');
+    final request = http.MultipartRequest('POST', uri);
+
+    request.fields.addAll({
+      'user_id': userId,
+      'no_hp': noHp,
+      'nik_ktp': nikKtp,
+      'laporan_pengaduan': laporanPengaduan,
+    });
+
+    if (pdfKtp != null) {
+      request.files.add(http.MultipartFile.fromBytes(
+        'input_pdf_ktp',
+        pdfKtp,
+        filename: 'ktp.pdf',
+        contentType: MediaType('application', 'pdf'),
+      ));
+    }
+
+    if (pdfPengaduan != null) {
+      request.files.add(http.MultipartFile.fromBytes(
+        'input_pdf_pengaduan',
+        pdfPengaduan,
+        filename: 'pengaduan.pdf',
+        contentType: MediaType('application', 'pdf'),
+      ));
+    }
+
+    final response = await request.send();
+    final String responseData = await utf8.decodeStream(response.stream);
+
+    if (response.statusCode == 200) {
+      return json.decode(responseData.toString());
+    } else {
+      throw Exception('Failed to upload pengaduan: $responseData');
+    }
+  }
+
+  Future<Map<String, dynamic>> updateStatusPegawai(int id,{
+    required String status,
+  }) async {
+    final Uri uri = Uri.parse('$baseUrl/editstatuspegawai/$id');
+    final request = http.MultipartRequest('POST', uri);
+
+    request.fields.addAll({
+      'status': status,
+    });
+    final response = await request.send();
+    final String responseData = await utf8.decodeStream(response.stream);
+
+    if (response.statusCode == 200) {
+      return json.decode(responseData.toString());
+    } else {
+      throw Exception('Failed to upload pengaduan: $responseData');
+    }
+  }
+
+  Future<Map<String, dynamic>> updateStatusKorupsi(int id,{
+    required String status,
+  }) async {
+    final Uri uri = Uri.parse('$baseUrl/editstatuskorupsi/$id');
+    final request = http.MultipartRequest('POST', uri);
+
+    request.fields.addAll({
+      'status': status,
+    });
+    final response = await request.send();
+    final String responseData = await utf8.decodeStream(response.stream);
+
+    if (response.statusCode == 200) {
+      return json.decode(responseData.toString());
+    } else {
+      throw Exception('Failed to upload pengaduan: $responseData');
+    }
+  }
+
+  Future<Map<String, dynamic>> updateStatusJaksa(int id,{
+    required String status,
+  }) async {
+    final Uri uri = Uri.parse('$baseUrl/editstatusjaksa/$id');
+    final request = http.MultipartRequest('POST', uri);
+
+    request.fields.addAll({
+      'status': status,
+    });
+    final response = await request.send();
+    final String responseData = await utf8.decodeStream(response.stream);
+
+    if (response.statusCode == 200) {
+      return json.decode(responseData.toString());
+    } else {
+      throw Exception('Failed to upload pengaduan: $responseData');
+    }
+  }
+
+  Future<Map<String, dynamic>> updateStatusHukum(int id,{
+    required String status,
+  }) async {
+    final Uri uri = Uri.parse('$baseUrl/editstatushukum/$id');
+    final request = http.MultipartRequest('POST', uri);
+
+    request.fields.addAll({
+      'status': status,
+    });
+    final response = await request.send();
+    final String responseData = await utf8.decodeStream(response.stream);
+
+    if (response.statusCode == 200) {
+      return json.decode(responseData.toString());
+    } else {
+      throw Exception('Failed to upload pengaduan: $responseData');
+    }
+  }
+
+  Future<Map<String, dynamic>> updateStatusAliran(int id,{
+    required String status,
+  }) async {
+    final Uri uri = Uri.parse('$baseUrl/editstatusaliran/$id');
+    final request = http.MultipartRequest('POST', uri);
+
+    request.fields.addAll({
+      'status': status,
+    });
+    final response = await request.send();
+    final String responseData = await utf8.decodeStream(response.stream);
+
+    if (response.statusCode == 200) {
+      return json.decode(responseData.toString());
+    } else {
+      throw Exception('Failed to upload pengaduan: $responseData');
+    }
+  }
+
+  Future<Map<String, dynamic>> updateStatusPosko(int id,{
+    required String status,
+  }) async {
+    final Uri uri = Uri.parse('$baseUrl/editstatusposko/$id');
+    final request = http.MultipartRequest('POST', uri);
+
+    request.fields.addAll({
+      'status': status,
+    });
+    final response = await request.send();
+    final String responseData = await utf8.decodeStream(response.stream);
+
+    if (response.statusCode == 200) {
+      return json.decode(responseData.toString());
+    } else {
+      throw Exception('Failed to upload pengaduan: $responseData');
+    }
+  }
+
+
 
 
 }
